@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Organism;
 use App\Models\Sample;
+use App\Models\Crop;
+use App\Models\Abundance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -22,22 +24,27 @@ class BiomeController extends Controller
 
         return Sample::query()
             ->withCount('abundances')
+            ->with('crop')
             ->get();
     }
 
     /**
      * Creates a new organism
      */
-    public function newOrganism(Request $request){
-
-        // Log is configured to print to stderr
-        Log::info($request->all());
-
-        //
-        // TODO: Complete this method to create a new Organism instance
-        //
-
-        return response()->json(['error' => 'Not completed'], 400);
+    public function newOrganism(Request $request) {
+        $organismData = $request->validate([
+            "genus" => "required|string",
+            "species" => "required|string",
+        ]);
+        try {
+            $organism = new Organism;
+            $organism->genus = $organismData["genus"];
+            $organism->species = $organismData["species"];
+            $organism->save();
+            return response()->json(['Organism Creates succesfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Not completed'], 400);
+        }
     }
 
     /**
@@ -51,16 +58,11 @@ class BiomeController extends Controller
      * Returns the top list of organisms
      */
     public function listOrganismsTop10(){
-
-        //
-        // TODO: Return the top 10 organisms
-        //
-        // Could be done with plain sql or better using laravel models
-
-        return DB::select("
-            select * from organisms
-        ");
-        
+        return Organism::query()
+        ->withCount('abundances')
+        ->orderBy('abundances_count','DESC')
+        ->limit(10)
+        ->get();
     }
 
 }

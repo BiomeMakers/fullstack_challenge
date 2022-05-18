@@ -62,6 +62,19 @@ export default class NewOrganismVue extends Vue {
             species: this.species,
         }
 
+
+        //Displays a messagi if the form is empty
+        this.msg = '';
+        if (!data.genus || !data.species ) {
+            if ( !data.genus ) {
+                this.msg = "Genus value can't be empty  "
+            }
+            if ( !data.species ) {
+                this.msg += "Species value can't be empty"
+            }
+            return;
+        }
+
         this.msg = 'Adding new organism';
 
         try {
@@ -75,7 +88,6 @@ export default class NewOrganismVue extends Vue {
             }
 
         }
-
 
     }
 
